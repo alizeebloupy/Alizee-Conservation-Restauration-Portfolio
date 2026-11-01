@@ -223,7 +223,6 @@ const CV = {
         fond: true sur une image l'affiche sur fond coloré (pour les .png détourés).
    { type: 'experiences', categorie: 'musee' }   Cartes tirées du CV.
    { type: 'memoire' }                           Encadré du sujet de mémoire.
-   { type: 'bientot', titre, texte }             Encadré « à venir ».
    { type: 'cv' }                                Frise du CV complète.
    { type: 'contact' }                           Bloc de contact.
    { type: 'onglets', onglets: [ { titre, blocs: [...] } ] }
@@ -481,11 +480,6 @@ const SECTIONS = [
                   { src: 'img/curtius-table.jpg', legende: { fr: 'Manipulation de pichets et cruches en grès des collections', en: 'Handling stoneware jugs and pitchers from the collections' } },
                   { src: 'img/curtius-reserves.jpg', legende: { fr: 'Rangement des grès dans les réserves du musée', en: 'Storing stoneware in the museum storerooms' } }
                 ]
-              },
-              {
-                type: 'bientot',
-                titre: { fr: 'Expérience en musée', en: 'Museum experience' },
-                texte: { fr: 'D’autres photos de mes missions en musée viendront ici.', en: 'More photos of my museum work will appear here.' }
               }
             ]
           },
@@ -494,12 +488,7 @@ const SECTIONS = [
           {
             titre: { fr: 'Mémoire de recherche', en: 'Thesis research' },
             blocs: [
-              { type: 'memoire' },
-              {
-                type: 'bientot',
-                titre: { fr: 'Recherches de mémoire', en: 'Thesis research' },
-                texte: { fr: 'Les images de la restauration du mémoire viendront ici.', en: 'Images of the thesis restoration will appear here.' }
-              }
+              { type: 'memoire' }
             ]
           },
 

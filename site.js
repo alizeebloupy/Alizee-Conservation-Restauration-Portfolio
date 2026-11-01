@@ -19,12 +19,12 @@ const paras = v => { const x = tr(v); return (Array.isArray(x) ? x.map(tr) : Str
 const UI = {
   fr: { avant: 'Avant', apres: 'Après', tout: 'Tout', technique: 'Technique', materiau: 'Matériau', detail: 'Détail', agrandir: 'Agrandir',
         prec: 'Précédent', suiv: 'Suivant', enCours: 'en cours', missions: 'Missions', copier: 'Copier l’adresse', copie: 'Adresse copiée',
-        bientot: 'Bientôt', telecharger: 'Télécharger le CV (PDF)', memoire: 'Sujet de recherche de mémoire', formation: 'Formation',
+        telecharger: 'Télécharger le CV (PDF)', memoire: 'Sujet de recherche de mémoire', formation: 'Formation',
         langues: 'Langues', logiciels: 'Logiciels', aucun: 'Aucune réalisation ne correspond à ce filtre.', hint: 'Clique sur le vase',
         vase: 'Vase réparé au kintsugi', vues: 'vues', accueil: 'Accueil', hint3d: 'Clique pour rejouer · glisse pour tourner', comparer: 'Avant / après', fermer: 'Fermer', autre: 'EN' },
   en: { avant: 'Before', apres: 'After', tout: 'All', technique: 'Technique', materiau: 'Material', detail: 'Details', agrandir: 'Enlarge',
         prec: 'Previous', suiv: 'Next', enCours: 'ongoing', missions: 'Duties', copier: 'Copy address', copie: 'Address copied',
-        bientot: 'Coming soon', telecharger: 'Download CV (PDF)', memoire: 'Thesis research topic', formation: 'Education',
+        telecharger: 'Download CV (PDF)', memoire: 'Thesis research topic', formation: 'Education',
         langues: 'Languages', logiciels: 'Software', aucun: 'No work matches this filter.', hint: 'Click the vase',
         vase: 'Vase repaired with kintsugi', vues: 'views', accueil: 'Home', hint3d: 'Click to replay · drag to turn', comparer: 'Before / after', fermer: 'Close', autre: 'FR' }
 };
@@ -161,10 +161,6 @@ const BLOCS = {
   },
 
   memoire() { const m = CV.memoire; return `<div class="card mem big"><span class="when">${tr(m.date)}</span><h3 style="margin-top:.3rem">${tr(m.titre)}</h3>${paras(m.texte).map(p => `<p>${p}</p>`).join('')}</div>`; },
-
-  bientot(b) {
-    return `<div class="empty"><div><h3>${tr(b.titre)}</h3><p>${tr(b.texte)}</p><span class="soon">${u('bientot')}</span></div></div>`;
-  },
 
   cv() {
     // couleur de la punaise et du fond de « photo » selon la catégorie de l'expérience

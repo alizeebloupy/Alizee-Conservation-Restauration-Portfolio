@@ -243,11 +243,6 @@ footer{view-transition-name:foot}
 .card b{font-weight:500;display:block}
 .card.mem{background:color-mix(in srgb,var(--p-sky) 35%,var(--bg));border-color:transparent}
 .card.mem.big p{max-width:48rem;font-size:1rem}
-.empty{display:grid;gap:2rem;align-items:center;padding:clamp(1.5rem,4vw,3rem);border-radius:var(--r);background:var(--bg);border:2px dashed var(--line)}
-.sec.clair .empty{background:var(--bg2)}
-.empty h3{font-size:clamp(1.7rem,4vw,2.6rem);color:var(--head)}
-.empty p{color:var(--mute);margin-top:.8rem;max-width:30rem}
-.soon{display:inline-block;margin-top:1.2rem;padding:.2rem 1rem;border-radius:999px;background:var(--p-cream);color:#3A3036;font:400 1rem var(--display)}
 
 /* ---------- CV : tableau punaisé ---------- */
 .cv-top{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:1.5rem}
@@ -337,7 +332,7 @@ footer{background:transparent;color:var(--mute);text-align:center;padding:1.6rem
 
 /* ---------- écrans moyens et petits ---------- */
 @media (max-width:900px){
-  .hero-grid,.split,.empty,.contact-grid,.lb-body,.steps{grid-template-columns:1fr}
+  .hero-grid,.split,.contact-grid,.lb-body,.steps{grid-template-columns:1fr}
   .hero-art{order:-1;width:min(70%,300px);margin-bottom:2.4rem}
   .arch-wrap{max-width:340px}
   .stage{height:min(60vh,460px);justify-self:center}
