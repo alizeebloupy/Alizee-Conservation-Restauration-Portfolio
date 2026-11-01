@@ -255,7 +255,7 @@ const SECTIONS = [
 
           /* --- Onglet 1 : Atelier privé --- */
           {
-            titre: { fr: 'Atelier privé', en: 'Private studio' }, ornement: 'flower',
+            titre: { fr: 'Atelier privé', en: 'Private studio' },
             blocs: [
               { type: 'experiences', categorie: 'atelier' },
               {
@@ -382,7 +382,7 @@ const SECTIONS = [
 
           /* --- Onglet 2 : Musée --- */
           {
-            titre: { fr: 'Musée', en: 'Museum' }, ornement: 'fan',
+            titre: { fr: 'Musée', en: 'Museum' },
             blocs: [
               { type: 'experiences', categorie: 'musee' },
               {
@@ -468,7 +468,7 @@ const SECTIONS = [
 
           /* --- Onglet 3 : Mémoire --- */
           {
-            titre: { fr: 'Mémoire de recherche', en: 'Thesis research' }, ornement: 'spark',
+            titre: { fr: 'Mémoire de recherche', en: 'Thesis research' },
             blocs: [
               { type: 'memoire' },
               {
@@ -481,7 +481,7 @@ const SECTIONS = [
 
           /* --- Onglet 4 : Kintsugi --- */
           {
-            titre: 'Kintsugi', ornement: 'flower',
+            titre: 'Kintsugi',
             blocs: [
               { type: 'experiences', categorie: 'kintsugi' },
               {

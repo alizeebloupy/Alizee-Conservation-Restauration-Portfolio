@@ -30,19 +30,10 @@ const UI = {
 };
 const u = k => UI[lang][k];
 
-/* ---------- ornements (dessinés en SVG, très légers) ---------- */
-const svg = (vb, inner) => `<svg class="orn" viewBox="${vb}" aria-hidden="true" focusable="false">${inner}</svg>`;
+/* ---------- petits dessins SVG (motifs du vase de secours, icône de la poignée avant / après) ---------- */
+const ARROWS = `<svg class="orn" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 7 4 12l5 5M15 7l5 5-5 5"/></svg>`;
 function petal(n, rx, ry, cy, rot, fill, stroke, sw) { let p = ''; for (let i = 0; i < n; i++) p += `<ellipse cx="0" cy="${cy}" rx="${rx}" ry="${ry}" transform="rotate(${rot + i * 360 / n})"/>`; return `<g fill="${fill}" stroke="${stroke}" stroke-width="${sw}">${p}</g>`; }
 const peonyInner = (s = GOLD, w = '#5E2B3B') => petal(8, 17, 28, -30, 0, '#E3AEB6', w, 1.6) + petal(6, 13, 21, -20, 30, '#FBF4DA', w, 1.5) + petal(5, 9, 14, -11, 0, '#E3AEB6', w, 1.4) + `<circle r="7" fill="${s}"/><circle r="2.6" fill="${w}"/>`;
-const ORN = {
-  fan: (c = {}) => { const f = c.fill || '#E3AEB6', s = c.stroke || GOLD, n = 9, R = 96, cx = 100, cy = 104, P = i => [cx + R * Math.cos(Math.PI + Math.PI * i / n), cy + R * Math.sin(Math.PI + Math.PI * i / n)];
-    const r = (R * Math.sin(Math.PI / (2 * n)) * 1.12).toFixed(1); let d = `M${cx} ${cy} L${P(0)[0].toFixed(1)} ${P(0)[1].toFixed(1)}`;
-    for (let i = 1; i <= n; i++) d += ` A${r} ${r} 0 0 1 ${P(i)[0].toFixed(1)} ${P(i)[1].toFixed(1)}`; d += ' Z';
-    let ribs = ''; for (let i = 1; i < n; i++) { const a = Math.PI + Math.PI * i / n; ribs += `<path d="M${cx} ${cy} L${(cx + R * .86 * Math.cos(a)).toFixed(1)} ${(cy + R * .86 * Math.sin(a)).toFixed(1)}"/>`; }
-    return svg('0 0 200 110', `<path d="${d}" fill="${f}" stroke="${s}" stroke-width="3" stroke-linejoin="round"/><g stroke="${s}" stroke-width="2" fill="none">${ribs}<path d="M${cx - R * .5} ${cy} A${R * .5} ${R * .5} 0 0 1 ${cx + R * .5} ${cy}"/></g>`); },
-  flower: (c = {}) => svg('-52 -52 104 104', petal(6, 15, 26, -26, 0, c.fill || '#E3AEB6', c.stroke || GOLD, 2.6) + `<circle r="10" fill="${c.stroke || GOLD}"/><circle r="4" fill="${c.core || '#5E2B3B'}"/>`),
-  spark: (c = {}) => svg('-12 -12 24 24', `<path d="M0 -11 Q1 -1 11 0 Q1 1 0 11 Q-1 1 -11 0 Q-1 -1 0 -11Z" fill="${c.fill || GOLD}"/>`)
-};
 
 /* ---------- vase de l'accueil : les éclats se rassemblent, puis les joints d'or se dessinent ---------- */
 function buildVase() {
@@ -77,23 +68,6 @@ function buildVase() {
   $('#vase').innerHTML = `<defs><clipPath id="vc"><path d="${shape}"/></clipPath>${clips}${art}</defs>${shards}<g clip-path="url(#vc)">${seam(A)}${seam(B)}${seam(C)}${seam(D)}</g>`;
 }
 function playVase() { const v = $('#vase'); v.classList.remove('play'); void v.getBoundingClientRect(); if (!reduce) v.classList.add('play'); }
-function heroDeco() {
-  const art = $('#heroArt');
-  [['fan', {}, 160, 'bottom:4%;right:-20%', 26, '-2s'],
-   ['flower', { fill: '#FBF4DA' }, 80, 'top:8%;right:-12%', 40, '-1s'], ['spark', {}, 32, 'top:42%;left:-18%', 18, '-3s'], ['spark', {}, 22, 'top:4%;right:24%', 30, '-5s'],
-   ['spark', {}, 26, 'bottom:30%;right:-18%', 20, '-2.5s'], ['spark', {}, 18, 'bottom:10%;left:24%', 14, '-6s']]
-  .forEach(([t, c, w, pos, depth, delay]) => { const d = document.createElement('span'); d.className = 'deco'; d.dataset.depth = depth; d.style.cssText = `${pos};width:${w}px;--d:${delay}`; d.innerHTML = ORN[t](c); art.appendChild(d); });
-  if (reduce || !matchMedia('(pointer:fine)').matches) return;
-  let raf = 0;
-  const hero = $('.hero');
-  hero.addEventListener('pointermove', e => {
-    if (raf) return;
-    raf = requestAnimationFrame(() => { raf = 0;
-      const r = hero.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-      $$('.deco', art).forEach(d => { const k = d.dataset.depth / 5; d.style.setProperty('--px', (x * k).toFixed(1)); d.style.setProperty('--py', (y * k).toFixed(1)); });
-    });
-  });
-}
 
 /* ---------- identifiants et état de chaque bloc ---------- */
 const STATE = {}, BLOC = {};
@@ -116,7 +90,7 @@ function compare(avant, apres, ratio, labels, alt) {
     <img class="a" src="${apres}" alt="${attr(alt)} – ${attr(labels[1])}" loading="lazy" decoding="async" draggable="false">
     <img class="b" src="${avant}" alt="${attr(alt)} – ${attr(labels[0])}" loading="lazy" decoding="async" draggable="false">
     <span class="ba-line"></span><span class="ba-tag l">${labels[0]}</span><span class="ba-tag r">${labels[1]}</span>
-    <span class="knob" role="slider" tabindex="0" aria-label="${attr(labels[0])} / ${attr(labels[1])}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">${ORN.flower({ fill: '#FBF4DA', stroke: '#5E2B3B', core: '#5E2B3B' })}</span></div>`;
+    <span class="knob" role="slider" tabindex="0" aria-label="${attr(labels[0])} / ${attr(labels[1])}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">${ARROWS}</span></div>`;
 }
 const single = (src, ratio, alt) => `<div class="solo-img" style="${ratioStyle(ratio)}"${auto(ratio)}><img src="${src}" alt="${attr(alt)}" loading="lazy" decoding="async"></div>`;
 const media = (p, ratio) => p.avant && p.apres ? compare(p.avant, p.apres, ratio, labelsOf(p), tr(p.titre)) : single(p.image || p.apres || p.avant, ratio, tr(p.titre));
@@ -171,28 +145,25 @@ const BLOCS = {
   memoire() { const m = CV.memoire; return `<div class="card mem big"><span class="when">${tr(m.date)}</span><h3 style="margin-top:.3rem">${tr(m.titre)}</h3>${paras(m.texte).map(p => `<p>${p}</p>`).join('')}</div>`; },
 
   bientot(b) {
-    const o = (b.ornements || ['fan']).filter(x => ORN[x]);
-    return `<div class="empty"><div><h3>${tr(b.titre)}</h3><p>${tr(b.texte)}</p><span class="soon">${u('bientot')}</span></div><div class="art">${o.map(x => ORN[x]({ fill: x === 'fan' ? '#E3AEB6' : '#FBF4DA' })).join('')}</div></div>`;
+    return `<div class="empty"><div><h3>${tr(b.titre)}</h3><p>${tr(b.texte)}</p><span class="soon">${u('bientot')}</span></div></div>`;
   },
 
   cv() {
     // couleur de la punaise et du fond de « photo » selon la catégorie de l'expérience
-    const cat = { musee: ['var(--skyDeep)', 'var(--p-sky)', 'fan'], atelier: ['var(--roseDeep)', 'var(--p-rose)', 'flower'], kintsugi: ['var(--goldDeep)', 'var(--p-cream)', 'flower'] };
+    const cat = { musee: ['var(--skyDeep)', 'var(--p-sky)'], atelier: ['var(--roseDeep)', 'var(--p-rose)'], kintsugi: ['var(--goldDeep)', 'var(--p-cream)'] };
     const rot = [-2.5, 2, -1.4, 2.6, -2, 1.5], js = ['start', 'end', 'center', 'center'], m = CV.memoire;
     const card = (e, i) => {
-      const [pinc, pc, orn] = cat[e.categorie] || ['var(--sageDeep)', 'var(--p-sage)', 'fan'];
+      const [pinc, pc] = cat[e.categorie] || ['var(--sageDeep)', 'var(--p-sage)'];
       return `<li class="pcard${e.enCours ? ' now' : ''}" style="--col:${i % 2 + 1};--row:${i + 1};--js:${js[i % 4]};--jsm:${i % 2 ? 'end' : 'start'};--rot:${rot[i % rot.length]}deg;--px:${i % 2 ? 24 : 76}%;--pinc:${pinc};--pc:${pc}">
         <span class="pin" aria-hidden="true"></span>
-        <div class="ph">${e.image ? `<img src="${e.image}" alt="" loading="lazy" decoding="async">` : ORN[orn]({ stroke: '#5E2B3B' })}</div>
+        <div class="ph">${e.image ? `<img src="${e.image}" alt="" loading="lazy" decoding="async">` : ''}</div>
         <div class="cap"><span class="when">${tr(e.date)}</span>${e.enCours ? `<span class="badge-now">${u('enCours')}</span>` : ''}
           <h3>${tr(e.titre)}</h3><p class="where">${tr(e.lieu)}</p>
           ${e.missions ? `<details><summary>${u('missions')}</summary><ul>${tr(e.missions).map(x => `<li>${x}</li>`).join('')}</ul></details>` : ''}</div></li>`;
     };
-    const doodles = [['spark', 'top:22px;right:6%;width:30px'], ['spark', 'top:26%;left:47%;width:26px'], ['spark', 'bottom:34%;left:3%;width:22px'], ['spark', 'bottom:40%;right:3%;width:20px']]
-      .map(([o, s]) => `<span class="doodle" style="${s}" aria-hidden="true">${ORN[o]()}</span>`).join('');
     return `<div class="cv-top"><p class="sub">${tr(CV.poste)}</p>${CV.pdf ? `<a class="dl" href="${CV.pdf}" download>${u('telecharger')}</a>` : ''}</div>
       <p class="cv-sum">${tr(CV.resume)}</p>
-      <div class="board" data-board>${doodles}<svg class="threads" aria-hidden="true"></svg><svg class="threads heads" aria-hidden="true"></svg>
+      <div class="board" data-board><svg class="threads" aria-hidden="true"></svg><svg class="threads heads" aria-hidden="true"></svg>
         <ol class="pins">${CV.experiences.map(card).join('')}</ol>
         <div class="notes">
           <div class="note" style="--nc:#DCE7EE;--rot:-1.4deg"><h3>${u('memoire')}</h3><span class="when">${tr(m.date)}</span><b style="margin-top:.4rem">${tr(m.titre)}</b>${paras(m.texte).map(p => `<p>${p}</p>`).join('')}</div>
@@ -204,7 +175,7 @@ const BLOCS = {
 
   contact() {
     const c = SITE.contact;
-    return `<div class="contact-grid contact"><div class="ring"><div class="face"><img src="${c.portrait}" alt="${attr(SITE.nom)}" loading="lazy" decoding="async"></div><span class="orn-a">${ORN.flower()}</span><span class="orn-b">${ORN.fan()}</span></div>
+    return `<div class="contact-grid contact"><div class="ring"><div class="face"><img src="${c.portrait}" alt="${attr(SITE.nom)}" loading="lazy" decoding="async"></div></div>
       <div><h2>Contact</h2><p class="who">${SITE.nom}</p>
         <div class="mail"><a class="addr" href="mailto:${c.email}">${c.email}</a><button class="copy" type="button" id="copy">${u('copier')}</button></div>
         <div class="links">${c.telephone ? `<a href="tel:${c.telephone.replace(/\s/g, '')}">${c.telephone}</a>` : ''}${(c.liens || []).map(l => l.lien ? `<a href="${l.lien}" target="_blank" rel="noopener">${tr(l.texte)}</a>` : `<span>${tr(l.texte)}</span>`).join('')}</div>
@@ -212,9 +183,9 @@ const BLOCS = {
   },
 
   onglets(b) {
-    const st = S(b, { i: 0 }), icons = ['flower', 'fan', 'spark', 'flower'];
+    const st = S(b, { i: 0 });
     return `<div class="tabs" role="tablist" data-tabs="${b._id}"><span class="tab-thumb"></span>${b.onglets.map((o, i) =>
-      `<button class="tab" type="button" role="tab" id="${b._id}-t${i}" aria-controls="${b._id}-p${i}" aria-selected="${i === st.i}" tabindex="${i === st.i ? 0 : -1}" data-tab="${b._id}" data-i="${i}">${(ORN[o.ornement] || ORN[icons[i % 4]])({ fill: i % 2 ? '#FBF4DA' : '#E3AEB6', stroke: '#5E2B3B' })}${tr(o.titre)}</button>`).join('')}</div>
+      `<button class="tab" type="button" role="tab" id="${b._id}-t${i}" aria-controls="${b._id}-p${i}" aria-selected="${i === st.i}" tabindex="${i === st.i ? 0 : -1}" data-tab="${b._id}" data-i="${i}">${tr(o.titre)}</button>`).join('')}</div>
       ${b.onglets.map((o, i) => `<div class="panel" role="tabpanel" id="${b._id}-p${i}" aria-labelledby="${b._id}-t${i}"${i === st.i ? '' : ' hidden'}>${(o.blocs || []).map(bloc).join('')}</div>`).join('')}`;
   }
 };
@@ -453,6 +424,6 @@ function paintGlass() {
   c.toBlob(b => { if (!b) return; const g = $('#glass'); g.style.setProperty('--drops', `url(${URL.createObjectURL(b)})`); g.classList.add('ready'); }, 'image/jpeg', .9);
 }
 
-buildVase(); heroDeco(); render(); show(location.hash.slice(1), false);
+buildVase(); render(); show(location.hash.slice(1), false);
 (window.requestIdleCallback || setTimeout)(paintGlass);
 })();
