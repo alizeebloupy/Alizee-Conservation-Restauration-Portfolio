@@ -110,9 +110,17 @@ const BLOCS = {
     if (b.filtres) {
       const count = (k, v) => b.projets.filter(p => k === 'tech' ? (p.techniques || []).includes(v) : p.materiau === v).length;
       const techs = [...new Set(b.projets.flatMap(p => p.techniques || []))], mats = [...new Set(b.projets.map(p => p.materiau).filter(Boolean))];
-      const row = (lab, k, vals) => `<div class="frow" role="group" aria-label="${lab}"><span class="flab">${lab}</span>${[['all', u('tout')], ...vals.map(v => [v, word(v)])].map(([v, l]) =>
-        `<button class="chip" type="button" data-filter="${b._id}" data-k="${k}" data-v="${attr(v)}" aria-pressed="${st[k] === v}">${l}${v !== 'all' ? `<small>${count(k, v)}</small>` : ''}</button>`).join('')}</div>`;
-      filters = `<div class="filters">${row(u('technique'), 'tech', techs)}${row(u('materiau'), 'mat', mats)}</div>`;
+      // menu déroulant : un bouton qui montre le choix actuel, une liste qui s'ouvre au clic
+      const menu = (lab, k, vals) => {
+        const opts = [['all', u('tout'), b.projets.length], ...vals.map(v => [v, word(v), count(k, v)])], id = `${b._id}-${k}`;
+        const cur = (opts.find(([v]) => v === st[k]) || opts[0])[1];
+        return `<div class="fdd" data-dd="${id}"><span class="flab" id="${id}-l">${lab}</span>
+          <button class="fdd-btn${st[k] !== 'all' ? ' on' : ''}" type="button" data-dd-btn="${id}" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="${id}-l ${id}-c">
+            <span id="${id}-c">${cur}</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.2 6 8l4-3.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <ul class="fdd-menu" role="listbox" aria-labelledby="${id}-l" hidden>${opts.map(([v, l, n]) =>
+            `<li><button class="fdd-opt" type="button" role="option" data-filter="${b._id}" data-k="${k}" data-v="${attr(v)}" aria-selected="${st[k] === v}">${l}<small>${n}</small></button></li>`).join('')}</ul></div>`;
+      };
+      filters = `<div class="filters">${menu(u('technique'), 'tech', techs)}${menu(u('materiau'), 'mat', mats)}</div>`;
       list = list.filter(([p]) => (st.tech === 'all' || (p.techniques || []).includes(st.tech)) && (st.mat === 'all' || p.materiau === st.mat));
     }
     st.visible = list.map(([, i]) => i);
@@ -284,7 +292,9 @@ document.addEventListener('click', e => {
   if ((x = t.closest('[data-view]')) && cur?.kind === 'proj') return openProject(cur.id, cur.p, +x.dataset.view);
   if ((x = t.closest('[data-nav]'))) return navigate(+x.dataset.nav);
   if ((x = t.closest('[data-photo]'))) return openPhoto(x.dataset.photo, +x.dataset.i);
-  if ((x = t.closest('[data-filter]'))) { const st = STATE[x.dataset.filter]; st[x.dataset.k] = x.dataset.v; return rerender(x.dataset.filter); }
+  if ((x = t.closest('[data-dd-btn]'))) return toggleMenu(x.closest('.fdd'));
+  closeMenus();
+  if ((x = t.closest('[data-filter]'))) { const st = STATE[x.dataset.filter], id = `${x.dataset.filter}-${x.dataset.k}`; st[x.dataset.k] = x.dataset.v; rerender(x.dataset.filter); return $(`[data-dd-btn="${id}"]`)?.focus(); }
   if ((x = t.closest('[data-step]'))) { const b = BLOC[x.dataset.step], st = S(b, {}); st.i = +x.dataset.i; st.j = 0;
     $$(`[data-step="${b._id}"]`).forEach((s, k) => s.setAttribute('aria-current', k === st.i)); return drawStage(b); }
   if ((x = t.closest('[data-sub]'))) { const b = BLOC[x.dataset.sub]; S(b, {}).j = +x.dataset.j; return drawStage(b); }
@@ -297,6 +307,27 @@ document.addEventListener('keydown', e => {
   const tab = e.target.closest?.('[data-tab]'); if (!tab) return; const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!d) return;
   e.preventDefault(); const N = BLOC[tab.dataset.tab].onglets.length; showTab(tab.dataset.tab, (+tab.dataset.i + d + N) % N, true);
 });
+
+/* ---------- menus déroulants des filtres ---------- */
+function closeMenus(except) {
+  $$('.fdd').forEach(d => { if (d === except) return; $('.fdd-menu', d).hidden = true; $('.fdd-btn', d).setAttribute('aria-expanded', 'false'); });
+}
+function toggleMenu(d, open = $('.fdd-menu', d).hidden) {
+  closeMenus(d);
+  $('.fdd-menu', d).hidden = !open; $('.fdd-btn', d).setAttribute('aria-expanded', open);
+  if (open) ($('.fdd-opt[aria-selected="true"]', d) || $('.fdd-opt', d)).focus();
+}
+document.addEventListener('keydown', e => {
+  const d = e.target.closest?.('.fdd'); if (!d) return;
+  const opts = $$('.fdd-opt', d), i = opts.indexOf(document.activeElement);
+  if (e.key === 'Escape') { closeMenus(); $('.fdd-btn', d).focus(); }
+  else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    if ($('.fdd-menu', d).hidden) return toggleMenu(d, true);
+    const k = e.key === 'ArrowDown' ? 1 : -1; opts[(i + k + opts.length) % opts.length].focus();
+  }
+});
+document.addEventListener('focusout', e => { const d = e.target.closest?.('.fdd'); if (d && !d.contains(e.relatedTarget)) closeMenus(); });
 
 async function copyMail() {
   const mail = SITE.contact.email;
