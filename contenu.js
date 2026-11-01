@@ -161,6 +161,16 @@ const CV = {
         fr: ['Assistance à la conservatrice du département Arts décoratifs', 'Inventaire : description, localisation, photographie, saisie dans Flora', 'Manipulation et conditionnement d’objets', 'Gestion des réserves, archivage, recherches historiques'],
         en: ['Assisting the decorative arts curator', 'Inventory: description, location, photography, data entry in Flora', 'Handling and packing objects', 'Storage management, archiving, historical research']
       }
+    },
+    {
+      date: { fr: 'Juillet 2023', en: 'July 2023' },
+      titre: { fr: 'Stage en restauration de céramique et verre', en: 'Ceramics and glass restoration internship' },
+      lieu: 'Atelier privé – Candice Carpentier · 94220, France',
+      categorie: 'atelier', image: 'img/carpentier-atelier.jpg',
+      missions: {
+        fr: ['Travail précis et minutieux', 'Mise en œuvre de protocoles de conservation et de restauration', 'Respect du cahier des charges', 'Prise de responsabilités', 'Maîtrise de toutes les phases de la restauration (nettoyage, collage, comblements, retouches)'],
+        en: ['Precise and meticulous work', 'Implementing conservation and restoration protocols', 'Compliance with the project brief', 'Taking on responsibilities', 'Command of every stage of restoration (cleaning, gluing, filling, inpainting)']
+      }
     }
   ],
 
