@@ -146,7 +146,7 @@ const CV = {
       date: { fr: 'Octobre – Décembre 2024', en: 'Oct – Dec 2024' },
       titre: { fr: 'Stage restauration de céramique', en: 'Ceramics restoration internship' },
       lieu: 'Atelier Shan-Tse',
-      categorie: 'atelier', image: 'img/couple-a.jpg',
+      categorie: 'atelier', image: 'img/shantse-atelier.jpg',
       missions: {
         fr: ['Techniques de restauration de la porcelaine', 'Gestion complète d’un projet client, du diagnostic à la livraison', 'Respect du cahier des charges'],
         en: ['Porcelain restoration techniques', 'Full management of a client project, from diagnosis to delivery', 'Compliance with the project brief']
