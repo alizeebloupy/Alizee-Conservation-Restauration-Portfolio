@@ -15,6 +15,19 @@
       de 2000 px de large, idéalement sous 300 Ko).
    2. Écris son chemin dans ce fichier :  'img/ma-photo.jpg'
 
+   RÉGLER LE CADRAGE D'UNE PHOTO
+   Quand une photo n'a pas les mêmes proportions que son cadre, elle est
+   recadrée en gardant le centre. Pour choisir la partie visible, ajoute
+   à côté de la photo (projet, image, étape, expérience, portrait…) :
+     cadrage: 'haut'          ← aussi 'bas', 'gauche', 'droite', 'centre'
+     cadrage: 'haut gauche'   ← on peut combiner deux mots
+     cadrage: '50% 20%'       ← réglage précis : horizontal puis vertical
+                                 (0% = bord gauche / haut, 100% = bord droit / bas)
+     zoom: 1.3                ← rapproche l'image (1 = normal, 1.3 = 30 % plus près)
+   Exemple :  { src: 'img/mod-ours.jpg', cadrage: 'bas', zoom: 1.2 }
+   Pour ne pas recadrer du tout une réalisation, enlève son « ratio » :
+   le cadre prend alors exactement les proportions de la photo.
+
    AJOUTER UNE RÉALISATION
    Copie un bloc { titre: ..., avant: ..., apres: ... } dans une liste
    « projets », puis change les textes et les images.
@@ -143,7 +156,7 @@ const CV = {
       date: { fr: 'Juin 2024', en: 'June 2024' },
       titre: { fr: 'Stage gestion des collections', en: 'Collections management internship' },
       lieu: 'Musée Grand Curtius · Liège, Belgique',
-      categorie: 'musee',
+      categorie: 'musee', image: 'img/curtius-table.jpg',
       missions: {
         fr: ['Assistance à la conservatrice du département Arts décoratifs', 'Inventaire : description, localisation, photographie, saisie dans Flora', 'Manipulation et conditionnement d’objets', 'Gestion des réserves, archivage, recherches historiques'],
         en: ['Assisting the decorative arts curator', 'Inventory: description, location, photography, data entry in Flora', 'Handling and packing objects', 'Storage management, archiving, historical research']
@@ -459,9 +472,20 @@ const SECTIONS = [
                 ]
               },
               {
+                type: 'photos',
+                titre: 'Musée Grand Curtius · Liège',
+                sousTitre: { fr: 'Juin 2024 · Stage gestion des collections', en: 'June 2024 · Collections management internship' },
+                intro: { fr: 'Assistance à la conservatrice du département Arts décoratifs : inventaire des collections (description, localisation, photographie, saisie dans Flora), manipulation et conditionnement des objets, gestion des réserves.', en: 'Assisting the decorative arts curator: collection inventory (description, location, photography, data entry in Flora), handling and packing objects, storage management.' },
+                images: [
+                  { src: 'img/curtius-inventaire.jpg', legende: { fr: 'Examen et description d’une cruche en grès pour l’inventaire', en: 'Examining and describing a stoneware jug for the inventory' } },
+                  { src: 'img/curtius-table.jpg', legende: { fr: 'Manipulation de pichets et cruches en grès des collections', en: 'Handling stoneware jugs and pitchers from the collections' } },
+                  { src: 'img/curtius-reserves.jpg', legende: { fr: 'Rangement des grès dans les réserves du musée', en: 'Storing stoneware in the museum storerooms' } }
+                ]
+              },
+              {
                 type: 'bientot',
                 titre: { fr: 'Expérience en musée', en: 'Museum experience' },
-                texte: { fr: 'Les photos des restaurations du Rijksmuseum, de Saint-Romain-en-Gal et du Grand Curtius viendront ici.', en: 'Photos of restorations carried out in museums will appear here.' }
+                texte: { fr: 'D’autres photos de mes missions en musée viendront ici.', en: 'More photos of my museum work will appear here.' }
               }
             ]
           },

@@ -85,22 +85,32 @@ const auto = r => r ? '' : ' data-auto';
 const head = b => (b.titre || b.sousTitre || b.intro) ? `<div class="bh">${b.titre ? `<h3>${tr(b.titre)}</h3>` : ''}${b.sousTitre ? `<p class="meta">${tr(b.sousTitre)}</p>` : ''}${b.intro ? `<p class="lead">${tr(b.intro)}</p>` : ''}</div>` : '';
 const labelsOf = p => (p.etiquettes && tr(p.etiquettes)) || [u('avant'), u('apres')];
 
-function compare(avant, apres, ratio, labels, alt) {
+/* cadrage d'une photo recadrée : 'haut', 'bas gauche', '50% 20%'… + zoom facultatif (1.2 = 20 % plus près) */
+function fit(o) {
+  if (!o || (!o.cadrage && !o.zoom)) return '';
+  let pos = String(o.cadrage || 'centre').toLowerCase();
+  if (!/%|px/.test(pos)) {
+    const has = w => pos.includes(w);
+    pos = `${has('gauche') ? 0 : has('droite') ? 100 : 50}% ${has('haut') ? 0 : has('bas') ? 100 : 50}%`;
+  }
+  return ` style="object-position:${pos}${o.zoom ? `;transform:scale(${o.zoom});transform-origin:${pos}` : ''}"`;
+}
+function compare(avant, apres, ratio, labels, alt, crop) {
   return `<div class="ba" data-ba style="${ratioStyle(ratio)}"${auto(ratio)}>
-    <img class="a" src="${apres}" alt="${attr(alt)} – ${attr(labels[1])}" loading="lazy" decoding="async" draggable="false">
-    <img class="b" src="${avant}" alt="${attr(alt)} – ${attr(labels[0])}" loading="lazy" decoding="async" draggable="false">
+    <img class="a" src="${apres}" alt="${attr(alt)} – ${attr(labels[1])}" loading="lazy" decoding="async" draggable="false"${fit(crop)}>
+    <img class="b" src="${avant}" alt="${attr(alt)} – ${attr(labels[0])}" loading="lazy" decoding="async" draggable="false"${fit(crop)}>
     <span class="ba-line"></span><span class="ba-tag l">${labels[0]}</span><span class="ba-tag r">${labels[1]}</span>
     <span class="knob" role="slider" tabindex="0" aria-label="${attr(labels[0])} / ${attr(labels[1])}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">${ARROWS}</span></div>`;
 }
-const single = (src, ratio, alt) => `<div class="solo-img" style="${ratioStyle(ratio)}"${auto(ratio)}><img src="${src}" alt="${attr(alt)}" loading="lazy" decoding="async"></div>`;
-const media = (p, ratio) => p.avant && p.apres ? compare(p.avant, p.apres, ratio, labelsOf(p), tr(p.titre)) : single(p.image || p.apres || p.avant, ratio, tr(p.titre));
+const single = (src, ratio, alt, crop) => `<div class="solo-img" style="${ratioStyle(ratio)}"${auto(ratio)}><img src="${src}" alt="${attr(alt)}" loading="lazy" decoding="async"${fit(crop)}></div>`;
+const media = (p, ratio) => p.avant && p.apres ? compare(p.avant, p.apres, ratio, labelsOf(p), tr(p.titre), p) : single(p.image || p.apres || p.avant, ratio, tr(p.titre), p);
 
 /* ---------- types de blocs ---------- */
 const BLOCS = {
   texte(b) {
     const body = `<div class="prose">${b.titre ? `<h2>${tr(b.titre)}</h2>` : ''}${paras(b.texte).map(p => `<p>${p}</p>`).join('')}${b.etiquettes ? `<ul class="chips">${b.etiquettes.map(e => `<li>${tr(e)}</li>`).join('')}</ul>` : ''}</div>`;
     if (!b.image) return body;
-    return `<div class="split"><div class="arch-wrap"><div class="arch"><img src="${b.image}" alt="${attr(tr(b.legendeImage))}" loading="lazy" decoding="async"></div></div>${body}</div>`;
+    return `<div class="split"><div class="arch-wrap"><div class="arch"><img src="${b.image}" alt="${attr(tr(b.legendeImage))}" loading="lazy" decoding="async"${fit(b)}></div></div>${body}</div>`;
   },
 
   galerie(b) {
@@ -142,7 +152,7 @@ const BLOCS = {
   photos(b) {
     return head(b) + `<div class="photos">${b.images.map((im, i) => `<figure class="tile${im.fond ? ' fond' : ''}" style="${ratioStyle(im.ratio)}; margin:0"${auto(im.ratio)}>
       <button class="tile-btn" type="button" data-photo="${b._id}" data-i="${i}" aria-label="${u('agrandir')} : ${attr(tr(im.legende))}"></button>
-      <img src="${im.src}" alt="${attr(tr(im.legende))}" loading="lazy" decoding="async">${im.legende ? `<figcaption>${tr(im.legende)}</figcaption>` : ''}</figure>`).join('')}</div>`;
+      <img src="${im.src}" alt="${attr(tr(im.legende))}" loading="lazy" decoding="async"${fit(im)}>${im.legende ? `<figcaption>${tr(im.legende)}</figcaption>` : ''}</figure>`).join('')}</div>`;
   },
 
   experiences(b) {
@@ -164,7 +174,7 @@ const BLOCS = {
       const [pinc, pc] = cat[e.categorie] || ['var(--sageDeep)', 'var(--p-sage)'];
       return `<li class="pcard${e.enCours ? ' now' : ''}" style="--col:${i % 2 + 1};--row:${i + 1};--js:${js[i % 4]};--jsm:${i % 2 ? 'end' : 'start'};--rot:${rot[i % rot.length]}deg;--px:${i % 2 ? 24 : 76}%;--pinc:${pinc};--pc:${pc}">
         <span class="pin" aria-hidden="true"></span>
-        <div class="ph">${e.image ? `<img src="${e.image}" alt="" loading="lazy" decoding="async">` : ''}</div>
+        <div class="ph">${e.image ? `<img src="${e.image}" alt="" loading="lazy" decoding="async"${fit(e)}>` : ''}</div>
         <div class="cap"><span class="when">${tr(e.date)}</span>${e.enCours ? `<span class="badge-now">${u('enCours')}</span>` : ''}
           <h3>${tr(e.titre)}</h3><p class="where">${tr(e.lieu)}</p>
           ${e.missions ? `<details><summary>${u('missions')}</summary><ul>${tr(e.missions).map(x => `<li>${x}</li>`).join('')}</ul></details>` : ''}</div></li>`;
@@ -183,7 +193,7 @@ const BLOCS = {
 
   contact() {
     const c = SITE.contact;
-    return `<div class="contact-grid contact"><div class="ring"><div class="face"><img src="${c.portrait}" alt="${attr(SITE.nom)}" loading="lazy" decoding="async"></div></div>
+    return `<div class="contact-grid contact"><div class="ring"><div class="face"><img src="${c.portrait}" alt="${attr(SITE.nom)}" loading="lazy" decoding="async"${fit(c)}></div></div>
       <div><h2>Contact</h2><p class="who">${SITE.nom}</p>
         <div class="mail"><a class="addr" href="mailto:${c.email}">${c.email}</a><button class="copy" type="button" id="copy">${u('copier')}</button></div>
         <div class="links">${c.telephone ? `<a href="tel:${c.telephone.replace(/\s/g, '')}">${c.telephone}</a>` : ''}${(c.liens || []).map(l => l.lien ? `<a href="${l.lien}" target="_blank" rel="noopener">${tr(l.texte)}</a>` : `<span>${tr(l.texte)}</span>`).join('')}</div>
@@ -208,10 +218,10 @@ const rerender = id => { const el = $(`[data-bloc="${id}"]`); if (el) el.innerHT
 /* ---------- pas à pas : image de l'étape ---------- */
 function stage(b) {
   const st = S(b, { i: 0, j: 0 }), e = b.etapes[st.i], alt = tr(e.titre);
-  if (e.avant && e.apres) return compare(e.avant, e.apres, b.ratio || .8, [u('avant'), u('apres')], alt);
+  if (e.avant && e.apres) return compare(e.avant, e.apres, b.ratio || .8, [u('avant'), u('apres')], alt, e);
   if (e.images) { const j = Math.min(st.j, e.images.length - 1);
-    return `<div class="still"><img src="${e.images[j]}" alt="${attr(alt)} (${j + 1}/${e.images.length})" decoding="async"><div class="sdots">${e.images.map((_, k) => `<button type="button" data-sub="${b._id}" data-j="${k}" aria-label="${attr(alt)} ${k + 1}/${e.images.length}" aria-pressed="${k === j}">${k + 1}</button>`).join('')}</div></div>`; }
-  return `<div class="still"><img src="${e.image}" alt="${attr(alt)}" decoding="async"></div>`;
+    return `<div class="still"><img src="${e.images[j]}" alt="${attr(alt)} (${j + 1}/${e.images.length})" decoding="async"${fit(e)}><div class="sdots">${e.images.map((_, k) => `<button type="button" data-sub="${b._id}" data-j="${k}" aria-label="${attr(alt)} ${k + 1}/${e.images.length}" aria-pressed="${k === j}">${k + 1}</button>`).join('')}</div></div>`; }
+  return `<div class="still"><img src="${e.image}" alt="${attr(alt)}" decoding="async"${fit(e)}></div>`;
 }
 const drawStage = b => { const el = $(`[data-stage="${b._id}"]`); if (el) el.innerHTML = stage(b); };
 
