@@ -75,7 +75,11 @@ body::before{content:"";position:fixed;inset:0;z-index:-3;
 .btn{display:inline-block;margin-top:2rem;padding:.85rem 1.8rem;border-radius:999px;background:var(--wine);color:#FBF4DA;font:400 1.1rem var(--display);text-decoration:none;transition:transform .25s,box-shadow .25s}
 .btn:hover{transform:translateY(-3px);box-shadow:0 10px 0 -2px var(--p-rose)}
 .hero-art{position:relative;aspect-ratio:400/560;width:min(100%,400px);justify-self:center}
-.vase{position:absolute;inset:0;width:100%;height:100%;cursor:pointer;overflow:visible;transition:opacity .6s}
+/* le vase dessiné ne sert plus que de secours, si la 3D ne peut pas se charger (classe .no3d) */
+.vase{position:absolute;inset:0;width:100%;height:100%;cursor:pointer;overflow:visible;opacity:0;pointer-events:none;transition:opacity .6s}
+.hero-art.no3d .vase{opacity:1;pointer-events:auto}
+.hero-art:not(.has3d):not(.no3d)::after{content:"";position:absolute;left:24%;right:24%;bottom:-1%;height:7%;border-radius:50%;background:radial-gradient(closest-side,rgba(58,40,50,.22),transparent);animation:wait-pulse 1.6s ease-in-out infinite alternate}
+@keyframes wait-pulse{from{opacity:.35;transform:scaleX(.8)}to{opacity:1;transform:none}}
 /* vase 3D : remplace le dessin en fondu dès qu'il est prêt */
 .hero-art.has3d .deco{z-index:0}
 .vase3d{position:absolute;z-index:1;inset:-12% -12% -6%;opacity:0;pointer-events:none;transition:opacity .9s ease;cursor:grab;touch-action:pan-y}

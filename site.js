@@ -373,7 +373,7 @@ function render() {
   $('#heroRole').textContent = tr(SITE.metier);
   $('#heroLede').textContent = tr(SITE.accroche);
   $('#heroBtn').textContent = tr(SITE.boutonAccueil.texte); $('#heroBtn').href = SITE.boutonAccueil.lien;
-  $('#hint').textContent = u(vase3d ? 'hint3d' : 'hint'); $('#vase').setAttribute('aria-label', u('vase'));
+  $('#hint').textContent = vase3d ? u('hint3d') : $('#heroArt').classList.contains('no3d') ? u('hint') : ''; $('#vase').setAttribute('aria-label', u('vase'));
   $('#lang').textContent = u('autre'); $('#lbx').setAttribute('aria-label', u('fermer'));
   $('#links').innerHTML = `<a href="#accueil">${u('accueil')}</a>` + SECTIONS.filter(s => s.menu).map(s => `<a href="#${s.id}">${tr(s.menu)}</a>`).join('');
   // chaque section devient une page à part, affichée seule (voir show())
@@ -388,13 +388,15 @@ function render() {
 
 /* ---------- vase 3D : module chargé à la demande, le dessin SVG reste affiché en attendant ou en cas d'échec ---------- */
 let vase3d = null, started3d = false;
+function fallback2d() { $('#heroArt').classList.add('no3d'); $('#hint').textContent = u('hint'); playVase(); }
 function start3d() {
-  if (started3d || location.protocol === 'file:') return;   // les modules ne se chargent pas en ouvrant le fichier directement
+  if (started3d) return;
   started3d = true;
-  (window.requestIdleCallback || setTimeout)(() => import('./vase3d.js')
+  if (location.protocol === 'file:') return fallback2d();   // les modules ne se chargent pas en ouvrant le fichier directement
+  import('./vase3d.js')
     .then(m => m.startVase($('#vase3d'), { reduce, onReady: () => { $('#heroArt').classList.add('has3d'); $('#hint').textContent = u('hint3d'); } }))
     .then(h => { vase3d = h; })
-    .catch(err => console.warn('Vase 3D indisponible, le dessin reste affiché :', err)));
+    .catch(err => { console.warn('Vase 3D indisponible, le dessin s\'affiche à la place :', err); fallback2d(); });
 }
 
 /* ---------- onglets du site : une page visible à la fois, choisie dans le menu ---------- */
@@ -412,7 +414,7 @@ function show(id, animate = true) {
     v.classList.remove('enter'); void v.offsetWidth; if (!reduce) v.classList.add('enter');
     clearTimeout(v._t); v._t = setTimeout(() => v.classList.remove('enter'), 1400);
     placeThumbs();
-    if (id === 'accueil' && !same) { playVase(); vase3d?.replay(); start3d(); }
+    if (id === 'accueil' && !same) { if ($('#heroArt').classList.contains('no3d')) playVase(); vase3d?.replay(); start3d(); }
     $$('[data-board]', v).forEach(b => { drawThreads(b); if (!reduce && !same) { b.classList.remove('seen'); b.classList.add('armed'); setTimeout(() => b.classList.add('seen'), 250); } });
   };
   if (first && id === 'accueil') start3d();
